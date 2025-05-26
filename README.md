@@ -10,4 +10,6 @@ This project will be simmilar to the previous one [project](https://github.com/K
 I'd like to take care of that project for the next 1 year, to carry out the complete analysis of the prices along whole year.
 
 In this repository, I'll post the code, which everyone will be able to use for the educational purposes, with their own dataset.
+
+
 ---

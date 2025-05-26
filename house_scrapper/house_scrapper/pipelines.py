@@ -11,3 +11,7 @@ from itemadapter import ItemAdapter
 class HouseScrapperPipeline:
     def process_item(self, item, spider):
         return item
+
+
+class SaveToPostgreSQL:
+    pass

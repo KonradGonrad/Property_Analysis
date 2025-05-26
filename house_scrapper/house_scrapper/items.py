@@ -6,7 +6,10 @@
 import scrapy
 
 
-class HouseScrapperItem(scrapy.Item):
+class OtodomScrapperItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    pass
+    title = scrapy.Field()
+    page_index = scrapy.Field()
+    price = scrapy.Field()
+

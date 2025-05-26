@@ -8,6 +8,13 @@ from scrapy import signals
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
 
+from urllib.parse import urlencode
+from random import randint
+import requests
+from re import I
+from scrapy.http import headers
+import json
+
 
 class HouseScrapperSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
@@ -101,3 +108,4 @@ class HouseScrapperDownloaderMiddleware:
 
     def spider_opened(self, spider):
         spider.logger.info("Spider opened: %s" % spider.name)
+

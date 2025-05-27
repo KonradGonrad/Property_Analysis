@@ -24,7 +24,7 @@ SCRAPEOPS_FAKE_BROWSER_HEADER_ENABLED = True
 SCRAP_WAIT_TIME = 1
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32

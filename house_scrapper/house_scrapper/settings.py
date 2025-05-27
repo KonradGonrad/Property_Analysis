@@ -15,6 +15,11 @@ NEWSPIDER_MODULE = "house_scrapper.spiders"
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 #USER_AGENT = "house_scrapper (+http://www.yourdomain.com)"
 
+SCRAPEOPS_API_KEY = "1e9097f8-12de-4375-8d92-b6aeb3f57a2d"
+SCRAPEOPS_NUM_RESULTS = 50
+SCRAPEOPS_FAKE_BROWSER_HEADER_ENDPOINT = "http://headers.scrapeops.io/v1/browser-headers"
+SCRAPEOPS_FAKE_BROWSER_HEADER_ENABLED = True
+
 # Spider settings
 SCRAP_WAIT_TIME = 1
 
@@ -53,9 +58,9 @@ DOWNLOAD_DELAY = 1
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
-#    "house_scrapper.middlewares.HouseScrapperDownloaderMiddleware": 543,
-    # 'web_scraper.middlewares.SeleniumMiddleware': 200,
-    # "web_scraper.middlewares.WebScraperFakeBrowserHeaders": 404,
+    "house_scrapper.middlewares.HouseScrapperDownloaderMiddleware": 543,
+    # "house_scrapper.middlewares.SeleniumMiddleware": 200,
+    "house_scrapper.middlewares.WebScraperFakeBrowserHeaders": 404,
 }
 
 # Enable or disable extensions

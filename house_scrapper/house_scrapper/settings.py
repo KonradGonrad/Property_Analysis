@@ -1,4 +1,4 @@
-from settings_keys import SCRAPEOPS_API_KEY
+from .settings_keys import SCRAPEOPS_API_KEY
 
 # Scrapy settings for house_scrapper project
 #
@@ -24,6 +24,7 @@ SCRAPEOPS_FAKE_BROWSER_HEADER_ENABLED = True
 
 # Spider settings
 SCRAP_WAIT_TIME = 1
+SCRAP_HISTORY = False
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False

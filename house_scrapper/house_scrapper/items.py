@@ -9,7 +9,17 @@ import scrapy
 class OtodomScrapperItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    link = scrapy.Field()
+    link = scrapy.Field() # For checking if everything is scraped corectlly
+    listing_id = scrapy.Field() # int
+    location = scrapy.Field() # Need to be changed in pipelines
+    city = scrapy.Field()
+    district = scrapy.Field()
+
+    scraped_at = scrapy.Field
+    history = scrapy.Field()
+    scrappedAt = scrapy.Field()
+
+
     listing_type = scrapy.Field()
     price = scrapy.Field() # int
     area = scrapy.Field() # float

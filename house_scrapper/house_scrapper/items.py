@@ -12,13 +12,13 @@ class OtodomScrapperItem(scrapy.Item):
     link = scrapy.Field() # For checking if everything is scraped corectlly
     listing_id = scrapy.Field() # int
     location = scrapy.Field() # Need to be changed in pipelines
-    city = scrapy.Field()
-    district = scrapy.Field()
+    scraped_at = scrapy.Field()
 
-    scraped_at = scrapy.Field
+    # Extra
+    number = scrapy.Field()
     history = scrapy.Field()
-    scrappedAt = scrapy.Field()
-
+    description = scrapy.Field()
+    photos = scrapy.Field()
 
     listing_type = scrapy.Field()
     price = scrapy.Field() # int
@@ -38,6 +38,41 @@ class OtodomScrapperItem(scrapy.Item):
     security = scrapy.Field() # Few points, list of elements
     media = scrapy.Field() # Few points, list of elements
     building_year = scrapy.Field()
+
+class OtodomScrapperResult(scrapy.Item):
+    # generic values
+    listing_id = scrapy.Field() 
+    scraped_at = scrapy.Field() 
+    listing_type = scrapy.Field() 
+    price = scrapy.Field() 
+    floor = scrapy.Field()
+    num_rooms = scrapy.Field()
+    area = scrapy.Field() 
+    rent = scrapy.Field()
+    deposit = scrapy.Field()
+    elevator = scrapy.Field()
+    building_year = scrapy.Field()
+    link = scrapy.Field()
+
+    # category values
+        # Sigle values
+    finish_level = scrapy.Field() # single
+    heating = scrapy.Field() # single
+    building_type = scrapy.Field() # single
+    building_material = scrapy.Field() # single
+    windows_type = scrapy.Field() # single
+        # Mutli values
+    additional = scrapy.Field() # mult
+    equipment = scrapy.Field() # multi 
+    media = scrapy.Field() # mutli
+    security = scrapy.Field() # multi
+
+    #location
+    street = scrapy.Field()
+    estate = scrapy.Field()
+    district = scrapy.Field()
+    city = scrapy.Field()
+    state = scrapy.Field()
 
 class OtodomScrapperItemsFilter:
     def element_name(name):

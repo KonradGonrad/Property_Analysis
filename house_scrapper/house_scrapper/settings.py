@@ -24,7 +24,17 @@ SCRAPEOPS_FAKE_BROWSER_HEADER_ENABLED = True
 
 # Spider settings
 SCRAP_WAIT_TIME = 1
+
+# Extra scrape things
 SCRAP_HISTORY = False
+SCRAP_NUMBER = False
+SCRAP_DESCRIPTION = False
+SCRAP_PHOTOS = False
+
+SCRAP_OTHER = any([SCRAP_HISTORY, 
+                   SCRAP_NUMBER, 
+                   SCRAP_DESCRIPTION, 
+                   SCRAP_PHOTOS])
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
@@ -71,12 +81,13 @@ DOWNLOADER_MIDDLEWARES = {
 #EXTENSIONS = {
 #    "scrapy.extensions.telnet.TelnetConsole": None,
 #}
+TELNETCONSOLE_PORT = [6060, 6070]
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#    "house_scrapper.pipelines.HouseScrapperPipeline": 300,
-#}
+ITEM_PIPELINES = {
+   "house_scrapper.pipelines.HouseScrapperPipeline": 300,
+}
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

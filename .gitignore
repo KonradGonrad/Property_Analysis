@@ -1,5 +1,8 @@
 /venv
 personal_data.py
 house_scrapper/apps_data.json
-
+/house_scrapper/apps_data_2.json 
+/house_scrapper/apps_data_3.json 
+/house_scrapper/apps_data_5.json 
+/house_scrapper/house_scrapper/apps_data.json
 settings_keys.py

@@ -18,7 +18,7 @@ class OtodomScrapperItem(scrapy.Item):
     number = scrapy.Field()
     history = scrapy.Field()
     description = scrapy.Field()
-    photos = scrapy.Field()
+    num_photo = scrapy.Field()
 
     listing_type = scrapy.Field()
     price = scrapy.Field() # int
@@ -73,6 +73,10 @@ class OtodomScrapperResult(scrapy.Item):
     district = scrapy.Field()
     city = scrapy.Field()
     state = scrapy.Field()
+
+    # Extra
+    description = scrapy.Field()
+    num_photo = scrapy.Field()
 
 class OtodomScrapperItemsFilter:
     def element_name(name):

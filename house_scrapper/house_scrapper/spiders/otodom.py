@@ -4,6 +4,7 @@ from ..settings_keys import email, password
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium import webdriver
 from scrapy_selenium import SeleniumRequest
 from scrapy.http import HtmlResponse
@@ -137,74 +138,138 @@ class OtodomSpider(scrapy.Spider):
             if OtodomScrapperItemsFilter.element_bool(element_name): # If element name in elements list that are scraped
                 Data[OtodomScrapperItemsFilter.element_name(element_name)] = element_value # If so, assign data to the Data element
 
-        if SCRAP_HISTORY:
+        # Scraping other extras
+        if SCRAP_OTHER:
+
             try:
-                driver = webdriver.Chrome()
-                driver.get(response.url)
+                driver = webdriver.Chrome() # Initialize the driver with Chrome driver
+                driver.get(response.url) # Pass to the driver page link
 
-                try:
-                    cookie_button = WebDriverWait(driver, 5).until(
-                        EC.element_to_be_clickable((By.CSS_SELECTOR, 'button#onetrust-accept-btn-handler'))
-                    )
+                time.sleep(0.5) # Waiting for page to load
+                try: # Trying to close the cookie bar
+                    cookie_button = driver.find_element(By.CSS_SELECTOR, "button#onetrust-accept-btn-handler")
                     cookie_button.click()
-                except:
-                    pass  
-                
-                try:
-                    login_button = WebDriverWait(driver, 10).until(
-                        EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[data-testid="ad.page.history.login-button"]'))
-                    )
-                    login_button.click()
+                    time.sleep(0.5)
+                except NoSuchElementException as e:
+                    print("Cookie button not found", e)
+                except Exception as e:
+                    print("Cookie error", e)
 
-                    WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.ID, "username"))
-                    )
+                time.sleep(1)
 
-                    driver.find_element(By.ID, "username").send_keys(f"{email}")
-                    driver.find_element(By.ID, "password").send_keys(f"{password}")
+                try: 
+                    survey_buttons = driver.find_elements(By.CSS_SELECTOR, '.laq-layout__actions--decline')
 
-                    login_button = driver.find_element(By.CSS_SELECTOR, 'button[data-testid="login-submit-button"]')
-                    login_button.click()
+                    if survey_buttons:
+                        try:
+                            survey_buttons[0].click()
+                            print("Survey closed")
+                        except Exception as e:
+                            print(f"Survey button found but couldn't click: {e}")
+                    else:
+                        print("No survey found")
+                except Exception as e:
+                    print("error survey", e)
 
-                    WebDriverWait(driver, 10).until(
-                        EC.url_contains("otodom.pl") 
-                    )
+                if SCRAP_PHOTOS:
+                    try: 
+                        gallery_buttons = driver.find_elements(By.CSS_SELECTOR, 'div[data-cy="mosaic-gallery-main-view"] > button')
+                        gallery_num = gallery_buttons[-1].find_element(By.CSS_SELECTOR, 'div').text
+                        Data['num_photo'] = gallery_num
 
-                    print("Logged in")
-                except:
+                    except Exception as e:
+                        Data['num_photo'] = None
+                        print("Not found gallery", e)
+
+                if SCRAP_NUMBER:
                     pass
 
-                time.sleep(3)
-
-                element = WebDriverWait(driver, 10).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, 'div[data-sentry-component="AdHistoryBase"]'))
-                    )
-                driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element)
-                try:
-                    history_section = WebDriverWait(driver, 10).until(
-                            EC.presence_of_element_located((By.CSS_SELECTOR, 'div[data-sentry-component="AdHistoryBase"]'))
-                        )
-
-                        # Pobieramy wszystkie pasujące elementy do wskazanej ścieżki
-                    data_elements = driver.find_elements(By.CSS_SELECTOR,
-                            'div[data-sentry-component="AdHistoryBase"] > div[data-sentry-element="Row"] + div > div > div > div'
-                        )
-                    actions = []
-                    element = data_elements[-1]
+                if SCRAP_DESCRIPTION:
                     try:
-                        date = element.find_element(By.CSS_SELECTOR, 'p').text
-                        actions.append(date)
-                    except Exception as e:
-                        print('Element error', e)
+                        description_section = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-component="AdDescriptionBase"]')
+                        driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", description_section)
 
-                    Data['history'] = actions
-                except Exception as e:
-                    print("Blad", e)
-                
-            except:
-                print("Not found history")
+                        try:
+                            
+                            expand_button = description_section.find_element(By.XPATH, './/span[text()="Pokaż więcej"]/ancestor::button')
+                            expand_button.click()
+                            time.sleep(1)  
+                        except Exception as e:
+                            print("Nie znaleziono lub nie można kliknąć przycisku 'Pokaż więcej':", e)
+
+                        description = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-component="AdDescriptionBase"] > div[data-sentry-element="DescriptionWrapper"] > span')
+
+                        Data['description'] = len(description.text.split())
+
+                    except:
+                        Data['description'] = None
+                        print("Description not found")
+
+                time.sleep(10)
+
+        
+            except Exception as e:
+                print("Driver not created")
             finally:
                 driver.close()
+
+            
+            
+            if SCRAP_HISTORY:
+                    
+                    try:
+                        login_button = WebDriverWait(driver, 10).until(
+                            EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[data-testid="ad.page.history.login-button"]'))
+                        )
+                        login_button.click()
+
+                        WebDriverWait(driver, 10).until(
+                            EC.presence_of_element_located((By.ID, "username"))
+                        )
+
+                        driver.find_element(By.ID, "username").send_keys(f"{email}")
+                        driver.find_element(By.ID, "password").send_keys(f"{password}")
+
+                        login_button = driver.find_element(By.CSS_SELECTOR, 'button[data-testid="login-submit-button"]')
+                        login_button.click()
+
+                        WebDriverWait(driver, 10).until(
+                            EC.url_contains("otodom.pl") 
+                        )
+
+                        print("Logged in")
+                    except:
+                        pass
+
+                    time.sleep(3)
+
+                    element = WebDriverWait(driver, 10).until(
+                            EC.presence_of_element_located((By.CSS_SELECTOR, 'div[data-sentry-component="AdHistoryBase"]'))
+                        )
+                    driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", element)
+                    try:
+                        history_section = WebDriverWait(driver, 10).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, 'div[data-sentry-component="AdHistoryBase"]'))
+                            )
+
+                            # Pobieramy wszystkie pasujące elementy do wskazanej ścieżki
+                        data_elements = driver.find_elements(By.CSS_SELECTOR,
+                                'div[data-sentry-component="AdHistoryBase"] > div[data-sentry-element="Row"] + div > div > div > div'
+                            )
+                        actions = []
+                        element = data_elements[-1]
+                        try:
+                            date = element.find_element(By.CSS_SELECTOR, 'p').text
+                            actions.append(date)
+                        except Exception as e:
+                            print('Element error', e)
+
+                        Data['history'] = actions
+                    except NoSuchElementException as e:
+                        print("Blad", e)
+
+            if SCRAP_DESCRIPTION:
+                pass
 
 
         yield Data # Return scrapped data

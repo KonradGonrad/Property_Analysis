@@ -20,13 +20,17 @@ class HouseScrapperPipeline:
                 pass
 
             if SCRAP_DESCRIPTION:
-                pass
+                if (value := adapter.get('description')) in ['brak informacji', None, 'brak']:
+                    result['description'] = None
+                result['description'] = self.parse_generic(value, 'description')
 
             if SCRAP_HISTORY:
                 pass
 
             if SCRAP_PHOTOS:
-                pass
+                if (value := adapter.get('num_photo')) in ['brak informacji', None, 'brak']:
+                    result['num_photo'] = None
+                result['num_photo'] = self.parse_generic(value, 'num_photo')
 
         # Generic values
         generic = ['listing_id', 'scraped_at', 'listing_type', 'price',
@@ -67,7 +71,7 @@ class HouseScrapperPipeline:
                 return int(10)
             return 0 if (first := element.split("/")[0]) == 'parter' else int(first)
         
-        if element_name in ['listing_id', 'building_year', 'num_rooms']:
+        if element_name in ['listing_id', 'building_year', 'num_rooms', 'description', 'num_photo']:
             return int(element)
         
         if element_name in ['rent']:

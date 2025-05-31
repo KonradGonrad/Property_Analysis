@@ -23,18 +23,19 @@ SCRAPEOPS_FAKE_BROWSER_HEADER_ENDPOINT = "http://headers.scrapeops.io/v1/browser
 SCRAPEOPS_FAKE_BROWSER_HEADER_ENABLED = True
 
 # Spider settings
-SCRAP_WAIT_TIME = 1
+SCRAP_WAIT_TIME = 5
 
 # Extra scrape things
 SCRAP_HISTORY = False
 SCRAP_NUMBER = False
-SCRAP_DESCRIPTION = False
-SCRAP_PHOTOS = False
+SCRAP_DESCRIPTION = True
+SCRAP_PHOTOS = True
 
 SCRAP_OTHER = any([SCRAP_HISTORY, 
                    SCRAP_NUMBER, 
                    SCRAP_DESCRIPTION, 
                    SCRAP_PHOTOS])
+
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False

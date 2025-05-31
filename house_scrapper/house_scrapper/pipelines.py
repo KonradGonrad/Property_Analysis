@@ -23,7 +23,9 @@ class HouseScrapperPipeline:
                 result['description'] = self.parse_generic(adapter.get('description'), 'description')
 
             if SCRAP_HISTORY:
-                pass
+                result['history'] = self.parse_generic(adapter.get('history'), 'history')
+                result['likes'] = self.parse_generic(adapter.get('likes'), 'likes')
+                result['views'] = self.parse_generic(adapter.get('views'), 'views')
 
             if SCRAP_PHOTOS:
                 result['num_photo'] = self.parse_generic(adapter.get('num_photo'), 'num_photo')
@@ -67,13 +69,13 @@ class HouseScrapperPipeline:
                 return int(10)
             return 0 if (first := element.split("/")[0]) == 'parter' else int(first)
         
-        if element_name in ['listing_id', 'building_year', 'num_rooms', 'description']:
+        if element_name in ['listing_id', 'building_year', 'num_rooms', 'description', 'likes', 'views']:
             return int(element)
         
         if element_name in ['rent']:
             return float(element.split("zł/miesiąc")[0].replace(" ", "").replace(",", "."))
 
-        if element_name in ['scraped_at', 'listing_type', 'link', 'number']:
+        if element_name in ['scraped_at', 'listing_type', 'link', 'number', 'history']:
             return element
         
         if element_name in ['area']:
@@ -184,6 +186,13 @@ class HouseScrapperPipeline:
         state = location_splitted[-1]
 
         return street, estate, district, city, state
+
+    @staticmethod
+    def parse_history(element):
+        """
+        Have no idea actually what can i do with this, so I'll just leave this for now
+        """
+        pass
 
 class SaveToPostgreSQL:
     def __init__(self):

@@ -27,7 +27,7 @@ SCRAP_WAIT_TIME = 5
 
 # Extra scrape things
 SCRAP_HISTORY = False
-SCRAP_NUMBER = False
+SCRAP_NUMBER = True
 SCRAP_DESCRIPTION = True
 SCRAP_PHOTOS = True
 

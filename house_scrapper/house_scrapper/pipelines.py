@@ -17,20 +17,16 @@ class HouseScrapperPipeline:
 
         if SCRAP_OTHER:
             if SCRAP_NUMBER:
-                pass
+                result['number'] = self.parse_generic(adapter.get('number'), 'number')
 
             if SCRAP_DESCRIPTION:
-                if (value := adapter.get('description')) in ['brak informacji', None, 'brak']:
-                    result['description'] = None
-                result['description'] = self.parse_generic(value, 'description')
+                result['description'] = self.parse_generic(adapter.get('description'), 'description')
 
             if SCRAP_HISTORY:
                 pass
 
             if SCRAP_PHOTOS:
-                if (value := adapter.get('num_photo')) in ['brak informacji', None, 'brak']:
-                    result['num_photo'] = None
-                result['num_photo'] = self.parse_generic(value, 'num_photo')
+                result['num_photo'] = self.parse_generic(adapter.get('num_photo'), 'num_photo')
 
         # Generic values
         generic = ['listing_id', 'scraped_at', 'listing_type', 'price',
@@ -71,13 +67,13 @@ class HouseScrapperPipeline:
                 return int(10)
             return 0 if (first := element.split("/")[0]) == 'parter' else int(first)
         
-        if element_name in ['listing_id', 'building_year', 'num_rooms', 'description', 'num_photo']:
+        if element_name in ['listing_id', 'building_year', 'num_rooms', 'description']:
             return int(element)
         
         if element_name in ['rent']:
             return float(element.split("zł/miesiąc")[0].replace(" ", "").replace(",", "."))
 
-        if element_name in ['scraped_at', 'listing_type', 'link']:
+        if element_name in ['scraped_at', 'listing_type', 'link', 'number']:
             return element
         
         if element_name in ['area']:
@@ -85,6 +81,9 @@ class HouseScrapperPipeline:
         
         if element_name in ['price', 'deposit']:
             return float(element.split("zł")[0].replace(" ", "").replace(",", "."))
+        
+        if element_name in ['num_photo']:
+            return int(element[element.find('(')+1:element.find(")")])
         
         if element_name in ['elevator']:
             return 1 if element == 'tak' else 0

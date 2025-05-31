@@ -146,12 +146,27 @@ class OtodomSpider(scrapy.Spider):
                 driver.get(response.url) # Pass to the driver page link
 
                 time.sleep(0.5) # Waiting for page to load
-                try: # Trying to close the cookie bar
-                    cookie_button = driver.find_element(By.CSS_SELECTOR, "button#onetrust-accept-btn-handler")
+
+                # Doesn't work corectly
+                # try: # Trying to close the cookie bar
+                #     cookie_button = driver.find_element(By.CSS_SELECTOR, "button#onetrust-accept-btn-handler")
+                #     cookie_button.click()
+                #     time.sleep(0.5)
+                # except NoSuchElementException as e:
+                #     print("Cookie button not found", e)
+                # except Exception as e:
+                #     print("Cookie error", e)
+
+                try:
+                    cookie_button = WebDriverWait(driver, 5).until(
+                        EC.element_to_be_clickable((By.CSS_SELECTOR, "button#onetrust-accept-btn-handler"))
+                    )
                     cookie_button.click()
                     time.sleep(0.5)
-                except NoSuchElementException as e:
-                    print("Cookie button not found", e)
+                except TimeoutException:
+                    print("Cookie button not found (timeout)")
+                except NoSuchElementException:
+                    print("Cookie button not found (no such element)")
                 except Exception as e:
                     print("Cookie error", e)
 
@@ -176,13 +191,32 @@ class OtodomSpider(scrapy.Spider):
                         gallery_buttons = driver.find_elements(By.CSS_SELECTOR, 'div[data-cy="mosaic-gallery-main-view"] > button')
                         gallery_num = gallery_buttons[-1].find_element(By.CSS_SELECTOR, 'div').text
                         Data['num_photo'] = gallery_num
-
+                    except NoSuchElementException:
+                        Data['num_photo'] = None
+                        print(f"No div found inside last gallery button on page {response.url}")
                     except Exception as e:
                         Data['num_photo'] = None
                         print("Not found gallery", e)
 
+                time.sleep(0.5)
+
                 if SCRAP_NUMBER:
-                    pass
+                    try:
+                        number_button = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-component="SellerInfo"] button[data-sentry-component="getPhoneButton"]')
+                        number_button.click()
+                        time.sleep(0.5) # Waiting for laod
+                        number = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-element="PhoneNumberWrapper"] span').text
+
+                        Data['number'] = number
+                    except NoSuchElementException:
+                        Data['number'] = None
+                        print(f"No number found on page {response.url}")
+
+                    except Exception as e:
+                        Data['number'] = None
+                        print("Number [Error]", e)
+
+                time.sleep(0.5)
 
                 if SCRAP_DESCRIPTION:
                     try:
@@ -204,9 +238,6 @@ class OtodomSpider(scrapy.Spider):
                     except:
                         Data['description'] = None
                         print("Description not found")
-
-                time.sleep(10)
-
         
             except Exception as e:
                 print("Driver not created")

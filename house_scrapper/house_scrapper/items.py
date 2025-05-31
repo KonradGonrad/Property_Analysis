@@ -77,6 +77,7 @@ class OtodomScrapperResult(scrapy.Item):
     # Extra
     description = scrapy.Field()
     num_photo = scrapy.Field()
+    number = scrapy.Field()
 
 class OtodomScrapperItemsFilter:
     def element_name(name):

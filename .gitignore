@@ -5,4 +5,5 @@ house_scrapper/apps_data.json
 /house_scrapper/apps_data_3.json 
 /house_scrapper/apps_data_5.json 
 /house_scrapper/house_scrapper/apps_data.json
+/data/database_info.py
 settings_keys.py

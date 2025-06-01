@@ -27,10 +27,14 @@ SCRAP_WAIT_TIME = 5
 SCRAP_SLEEP_TIME = 1
 
 # Extra scrape things
-SCRAP_HISTORY = True
+SCRAP_HISTORY = False # In general I don't use this
 SCRAP_NUMBER = True
 SCRAP_DESCRIPTION = True
-SCRAP_PHOTOS = True
+SCRAP_PHOTOS = False
+SCRAP_STATS = True
+
+SCRAP_ADD = any([SCRAP_DESCRIPTION,
+                 SCRAP_STATS])
 
 SCRAP_OTHER = any([SCRAP_HISTORY, 
                    SCRAP_NUMBER, 

@@ -1,5 +1,5 @@
 import scrapy
-from ..settings import SCRAP_PHOTOS, SCRAP_DESCRIPTION, SCRAP_HISTORY, SCRAP_NUMBER, SCRAP_OTHER, SCRAP_WAIT_TIME, SCRAP_SLEEP_TIME
+from ..settings import SCRAP_PHOTOS, SCRAP_DESCRIPTION, SCRAP_HISTORY, SCRAP_NUMBER, SCRAP_OTHER, SCRAP_WAIT_TIME, SCRAP_SLEEP_TIME, SCRAP_ADD, SCRAP_STATS
 from ..settings_keys import email, password
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -109,6 +109,11 @@ class OtodomSpider(scrapy.Spider):
     def parse_apartment(self, response):
         Data = OtodomScrapperItem() # Container for data scraped from the Website
         listing_type = response.meta.get('listing_type')
+
+        if response.status in [404, 410]:
+            Data['active'] = False
+        else:
+            Data['active'] = True
 
         Data['scraped_at'] = time.strftime("%Y-%m-%d")
         Data['link'] = response.url
@@ -238,7 +243,7 @@ class OtodomSpider(scrapy.Spider):
                         Data['description'] = None
                         print("Description not found")
         
-                if SCRAP_HISTORY:
+                if SCRAP_ADD:
                     try:
                         history_section = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-component="AdHistoryBase"] button')
                         driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", history_section)
@@ -265,28 +270,32 @@ class OtodomSpider(scrapy.Spider):
                             time.sleep(SCRAP_SLEEP_TIME)
 
                             # Return on the initial site after logging in 
-                            try:
-                                history_data = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-component="AdHistoryBase"]')
-                            
-                                driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", history_data)
-                                time.sleep(SCRAP_SLEEP_TIME)
-
-                                # History
+                            if SCRAP_HISTORY:
                                 try:
-                                    wrapper = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-component="AdHistoryBase"] div[data-testid="textWrapper"]')
-                                    all_p_tags = wrapper.find_elements(By.TAG_NAME, "p")
+                                    history_data = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-component="AdHistoryBase"]')
+                                
+                                    driver.execute_script("arguments[0].scrollIntoView({behavior: 'smooth', block: 'center'});", history_data)
+                                    time.sleep(SCRAP_SLEEP_TIME)
 
-                                    tags = []
-                                    for i in range(0, len(all_p_tags), 3):
-                                        date = all_p_tags[i].text.strip()
-                                        change = all_p_tags[i+1].text.strip()
+                                    # History
+                                    try:
+                                        wrapper = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-component="AdHistoryBase"] div[data-testid="textWrapper"]')
+                                        all_p_tags = wrapper.find_elements(By.TAG_NAME, "p")
 
-                                        tags.append({'date': date, 'change': change})
-                                    
-                                    Data['history'] = tags
+                                        tags = []
+                                        for i in range(0, len(all_p_tags), 3):
+                                            date = all_p_tags[i].text.strip()
+                                            change = all_p_tags[i+1].text.strip()
+
+                                            tags.append({'date': date, 'change': change})
+                                        
+                                        Data['history'] = tags
+                                    except Exception as e:
+                                        print("no history found", e)
                                 except Exception as e:
                                     print('History data error', e)
 
+                            if SCRAP_STATS:
                                 # Stats
                                 try:
                                     stats = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-source-file="AdStatistics.tsx"]')
@@ -296,9 +305,8 @@ class OtodomSpider(scrapy.Spider):
                                     Data['likes'] = all_spans[1].text.strip()
                                 except Exception as e:
                                     print("Can't find views and likes", e)
-
-                            except Exception as e:
-                                print("Can't scroll to history_data", e)
+                                    Data['views'] = None
+                                    Data['likes'] = None
                         except Exception as e:
                             print("Login error", e)
                     except Exception as e:

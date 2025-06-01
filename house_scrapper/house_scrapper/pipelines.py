@@ -55,7 +55,7 @@ class HouseScrapperPipeline:
             result[element_name] = self.parse_category_list(element, element_name)
 
         # Location
-        result['street'], result['estate'], result['district'], result['city'], result['state'] = self.parse_location(adapter.get('location'))
+        result['street'], result['estate'], result['district'], result['city'], result['province'] = self.parse_location(adapter.get('location'))
         
         return result
 
@@ -75,7 +75,7 @@ class HouseScrapperPipeline:
         if element_name in ['rent']:
             return float(element.split("zł/miesiąc")[0].replace(" ", "").replace(",", "."))
 
-        if element_name in ['scraped_at', 'listing_type', 'link', 'number', 'history']:
+        if element_name in ['scraped_at', 'listing_type', 'link', 'number', 'history', 'active']:
             return element
         
         if element_name in ['area']:
@@ -88,7 +88,7 @@ class HouseScrapperPipeline:
             return int(element[element.find('(')+1:element.find(")")])
         
         if element_name in ['elevator']:
-            return 1 if element == 'tak' else 0
+            return True if element == 'tak' else False
 
     @staticmethod
     def parse_category(element: str, mapping_name: str):
@@ -175,7 +175,7 @@ class HouseScrapperPipeline:
     @staticmethod    
     def parse_location(element: str):
         """
-        Function return street, estate, district, city and state for location that have at least 4 
+        Function return street, estate, district, city and province for location that have at least 4 
         """
         location_splitted = element.split(",")
 
@@ -183,9 +183,9 @@ class HouseScrapperPipeline:
         estate = location_splitted[-4] if len(location_splitted) in [4, 5, 6] else None
         district = location_splitted[-3]
         city = location_splitted[-2]
-        state = location_splitted[-1]
+        province = location_splitted[-1]
 
-        return street, estate, district, city, state
+        return street, estate, district, city, province
 
     @staticmethod
     def parse_history(element):

@@ -9,6 +9,7 @@ from itemadapter import ItemAdapter
 from .items import OtodomScrapperResult
 from .settings import SCRAP_PHOTOS, SCRAP_DESCRIPTION, SCRAP_HISTORY, SCRAP_NUMBER, SCRAP_OTHER
 from typing import List
+import psycopg2
 
 class HouseScrapperPipeline:
     def process_item(self, item, spider):
@@ -195,5 +196,31 @@ class HouseScrapperPipeline:
         pass
 
 class SaveToPostgreSQL:
-    def __init__(self):
+    def __init__(self, db_name, user, password, host='localhost', port='5432'):
+        self.conn = psycopg2.connect(
+            dbname=db_name,
+            user=user,
+            password=password,
+            host=host,
+            port=port
+        )
+        self.cur = self.conn.cursor()
+
+    def process_item(self, item, spider):
         pass
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        settings = crawler.settings
+        return cls(
+            db_name = settings.get('DB_NAME'),
+            user = settings.get('DB_USER'),
+            password = settings.get('DB_PASSWORD'),
+            host = settings.get('DB_HOST', 'localhost'),
+            port = settings.get("DB_PORT", '5432')
+        )
+
+    def close_spider(self, spider):
+        self.cur.close()
+        self.conn.close()
+        

@@ -1,4 +1,5 @@
 from .settings_keys import SCRAPEOPS_API_KEY
+from ...data.database_info import db_name, acc_name, password
 
 # Scrapy settings for house_scrapper project
 #
@@ -123,3 +124,8 @@ FEED_EXPORT_ENCODING = "utf-8"
 
 
 # Custom settings
+
+# DataBase Settings
+DB_NAME = db_name
+DB_USER = acc_name
+DB_PASSWORD = password

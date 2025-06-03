@@ -124,8 +124,11 @@ FEED_EXPORT_ENCODING = "utf-8"
 
 
 # Custom settings
+SAVE_PATH = 'appdata.json'
 
 # DataBase Settings
 DB_NAME = db_name
 DB_USER = acc_name
 DB_PASSWORD = password
+DB_PORT = '5432'
+DB_HOST = 'localhost'

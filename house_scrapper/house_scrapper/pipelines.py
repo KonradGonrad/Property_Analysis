@@ -6,9 +6,10 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-from .items import OtodomScrapperResult
+from .items import OtodomScrapperResult, 
 from .settings import SCRAP_PHOTOS, SCRAP_DESCRIPTION, SCRAP_HISTORY, SCRAP_NUMBER, SCRAP_OTHER
 from typing import List
+from house_scrapper.items import DbTablesItem, ListingMultiItem, ListingsFeaturesItem, ListingsItem, ListingStatsItem, LocationItem, PriceHistoryItem, BuildingFeaturesItem
 import psycopg2
 
 class HouseScrapperPipeline:
@@ -195,30 +196,109 @@ class HouseScrapperPipeline:
         """
         pass
 
-class SaveToPostgreSQL:
-    def __init__(self, db_name, user, password, host='localhost', port='5432'):
-        self.conn = psycopg2.connect(
-            dbname=db_name,
-            user=user,
-            password=password,
-            host=host,
-            port=port
-        )
-        self.cur = self.conn.cursor()
+class ProcessToSQL:
+    def process_item(self, item):
+        adapter = ItemAdapter(item)
+        listing_id = adapter.get('listing_id')
+        scraped_at = adapter.get('scraped_at')
 
-    def process_item(self, item, spider):
-        pass
+        #SQL Tables
+        db_tables = DbTablesItem()
+
+        # === Listing - main table ===
+        db_tables['listing'] = ListingsItem(
+            listing_id = listing_id,
+            listing_type = adapter.get('listing_type'),
+            len_description = adapter.get('description'),
+            num_photo = adapter.get('num_photo'),
+            active = adapter.get('active'),
+            link = adapter.get('link'),
+            phone_number = adapter.get('number')
+        )
+
+        # === Listing Multi columns ===
+        # [listing_media, listing_additional, listing_security, listing_equipment]
+        listings_multi = ListingMultiItem(
+            listing_equipment = adapter.get('equipment'),
+            listing_security = adapter.get('security'),
+            listing_additional = adapter.get('additional'),
+            listing_media = adapter.get('media')
+        )
+
+        # === Listing Features ===
+        listings_features = ListingsFeaturesItem(
+            listing_id = listing_id,
+            floor = adapter.get('floor'),
+            num_rooms = adapter.get('num_rooms'),
+            area = adapter.get('area'),
+            elevator = adapter.get('elevator')
+        )
+
+        # === Statistic table ===
+        stats = ListingStatsItem(
+            listing_id = listing_id,
+            scraped_at = scraped_at,
+            views = adapter.get('likes'),
+            likes = adapter.get('views')
+        )
+
+        # === Location table ===
+        location = LocationItem(
+            listing_id = listing_id,
+            street = adapter.get('street'),
+            estate = adapter.get('estate'),
+            district = adapter.get('district'),
+            city = adapter.get('city'),
+            province = adapter.get('province')
+        )
+
+        # === Price History table ===
+        price = PriceHistoryItem(
+            listing_id = listing_id,
+            scraped_at = scraped_at,
+            price = adapter.get('price'),
+            rent = adapter.get('rent'),
+            deposit = adapter.get('deposit')
+        )
+
+        #=== Building Features table ===
+        building_features = BuildingFeaturesItem(
+            listing_id = listing_id,
+            building_material = adapter.get('building_material'),
+            building_type = adapter.get('building_type'),
+            building_year = adapter.get('building_year'),
+            finish_level = adapter.get('finish_level'),
+            heating = adapter.get('heating'),
+            windows_type = adapter.get('windows_type')
+        )
+
+        return db_tables
+
+class SaveToPostgreSQL:
+    def __init__(self, db_settings):
+        self.db_settings = db_settings
+        self.conn = None
+        self.cur = None
 
     @classmethod
     def from_crawler(cls, crawler):
-        settings = crawler.settings
-        return cls(
-            db_name = settings.get('DB_NAME'),
-            user = settings.get('DB_USER'),
-            password = settings.get('DB_PASSWORD'),
-            host = settings.get('DB_HOST', 'localhost'),
-            port = settings.get("DB_PORT", '5432')
-        )
+        db_settings = {
+            'host': crawler.settings.get('DB_HOST'),
+            'port': crawler.settings.get('DB_PORT'),
+            'user': crawler.settings.get('DB_USER'),
+            'dbname': crawler.settings.get('DB_NAME'),
+            'password': crawler.settings.get('DB_PASSWORD')
+        }
+        return cls(db_settings)
+
+    def open_spider(self, spider):
+        self.conn = psycopg2.connect(**self.db_settings) # ** - unpacking the dict contents
+        self.cur = self.conn.cursor() 
+
+    def process_item(self, item, spider):
+        adapter = ItemAdapter(item=item)
+
+        self.cur.execute
 
     def close_spider(self, spider):
         self.cur.close()

@@ -113,3 +113,66 @@ class OtodomScrapperItemsFilter:
                     "Materiał budynku", "Okna", "Wyposażenie", "Zabezpieczenia", "Media", "Rok budowy"]
         return name in elements
 
+# Database tables
+class DbTablesItem(scrapy.Item):
+    # Container for classes below
+    listing = scrapy.Field()
+    listing_features = scrapy.Field()
+    location = scrapy.Field()
+    building_features = scrapy.Field()
+    price_history = scrapy.Field()
+    listing_stats = scrapy.Field()
+    multi_items = scrapy.Field()
+
+
+class ListingsItem(scrapy.Item):
+    listing_id = scrapy.Field()
+    listing_type = scrapy.Field()
+    len_description = scrapy.Field()
+    num_photo = scrapy.Field()
+    active = scrapy.Field()
+    link = scrapy.Field()
+    phone_number = scrapy.Field()
+
+class ListingsFeaturesItem(scrapy.Item):
+    listing_id = scrapy.Field()
+    floor = scrapy.Field()
+    num_rooms = scrapy.Field()
+    area = scrapy.Field()
+    elevator = scrapy.Field()
+
+class LocationItem(scrapy.Item):
+    listing_id = scrapy.Field()
+    street = scrapy.Field()
+    estate = scrapy.Field()
+    district = scrapy.Field()
+    city = scrapy.Field()
+    province = scrapy.Field()
+
+class BuildingFeaturesItem(scrapy.Item):
+    listing_id = scrapy.Field()
+    building_material = scrapy.Field()
+    building_type = scrapy.Field()
+    building_year = scrapy.Field()
+    finish_level = scrapy.Field()
+    heating = scrapy.Field()
+    windows_type= scrapy.Field()
+
+class PriceHistoryItem(scrapy.Item):
+    listing_id = scrapy.Field()
+    scraped_at = scrapy.Field()
+    price = scrapy.Field()
+    rent = scrapy.Field()
+    deposit= scrapy.Field()
+
+class ListingStatsItem(scrapy.Item):
+    listing_id = scrapy.Field()
+    scraped_at = scrapy.Field()
+    views = scrapy.Field()
+    likes = scrapy.Field()
+
+class ListingMultiItem(scrapy.Item):
+    listing_equipment = scrapy.Field()
+    listing_security = scrapy.Field()
+    listing_additional = scrapy.Field()
+    listing_media = scrapy.Field()

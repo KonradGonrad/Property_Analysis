@@ -1,5 +1,5 @@
 import scrapy
-from ..settings import SCRAP_PHOTOS, SCRAP_DESCRIPTION, SCRAP_HISTORY, SCRAP_NUMBER, SCRAP_OTHER, SCRAP_WAIT_TIME, SCRAP_SLEEP_TIME, SCRAP_ADD, SCRAP_STATS
+from ..settings import SCRAP_PHOTOS, SCRAP_DESCRIPTION, SCRAP_HISTORY, SCRAP_NUMBER, SCRAP_OTHER, SCRAP_WAIT_TIME, SCRAP_SLEEP_TIME, SCRAP_ADD, SCRAP_STATS, SAVE_PATH
 from ..settings_keys import email, password
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -17,7 +17,7 @@ class OtodomSpider(scrapy.Spider):
     name = "otodom"
     allowed_domains = ["otodom.pl"]
     custom_settings = {'FEEDS': {
-         'apps_data_5.json'   :   {'format':'json', 'overwrite': True}, # File to save destination
+         f'{SAVE_PATH}'   :   {'format':'json', 'overwrite': True}, # File to save destination
     }}
 
     def start_requests(self): # Start for different links, there I used that to differentiate the rent and the sale market in Lodz

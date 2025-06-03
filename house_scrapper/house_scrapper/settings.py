@@ -1,5 +1,8 @@
+import sys
+sys.path.append('../')
+
 from .settings_keys import SCRAPEOPS_API_KEY
-from ...data.database_info import db_name, acc_name, password
+from data.database_info import db_name, acc_name, password
 
 # Scrapy settings for house_scrapper project
 #
@@ -94,6 +97,8 @@ TELNETCONSOLE_PORT = [6060, 6070]
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    "house_scrapper.pipelines.HouseScrapperPipeline": 300,
+   "house_scrapper.pipelines.ProcessToSQL": 400,
+   "house_scrapper.pipelines.SaveToPostgreSQL": 500
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)

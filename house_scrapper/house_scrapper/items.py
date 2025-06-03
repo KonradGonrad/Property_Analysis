@@ -122,7 +122,10 @@ class DbTablesItem(scrapy.Item):
     building_features = scrapy.Field()
     price_history = scrapy.Field()
     listing_stats = scrapy.Field()
-    multi_items = scrapy.Field()
+    listing_equipment = scrapy.Field()
+    listing_security = scrapy.Field()
+    listing_additional = scrapy.Field()
+    listing_media = scrapy.Field()
 
 
 class ListingsItem(scrapy.Item):
@@ -171,8 +174,18 @@ class ListingStatsItem(scrapy.Item):
     views = scrapy.Field()
     likes = scrapy.Field()
 
-class ListingMultiItem(scrapy.Item):
-    listing_equipment = scrapy.Field()
-    listing_security = scrapy.Field()
-    listing_additional = scrapy.Field()
-    listing_media = scrapy.Field()
+class ListingEquipmentItem(scrapy.Item):
+    listing_id = scrapy.Field()
+    value = scrapy.Field()
+
+class ListingSecurityItem(scrapy.Item):
+    listing_id = scrapy.Field()
+    value = scrapy.Field()
+
+class ListingAdditionalItem(scrapy.Item):
+    listing_id = scrapy.Field()
+    value = scrapy.Field()
+
+class ListingMediaItem(scrapy.Item):
+    listing_id = scrapy.Field()
+    value = scrapy.Field()

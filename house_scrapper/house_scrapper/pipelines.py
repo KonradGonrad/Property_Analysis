@@ -6,11 +6,11 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-from .items import OtodomScrapperResult, 
 from .settings import SCRAP_PHOTOS, SCRAP_DESCRIPTION, SCRAP_HISTORY, SCRAP_NUMBER, SCRAP_OTHER
 from typing import List
-from house_scrapper.items import DbTablesItem, ListingMultiItem, ListingsFeaturesItem, ListingsItem, ListingStatsItem, LocationItem, PriceHistoryItem, BuildingFeaturesItem
+from house_scrapper.items import *
 import psycopg2
+from data.queries import ListingQuerries
 
 class HouseScrapperPipeline:
     def process_item(self, item, spider):
@@ -197,7 +197,7 @@ class HouseScrapperPipeline:
         pass
 
 class ProcessToSQL:
-    def process_item(self, item):
+    def process_item(self, item, spider):
         adapter = ItemAdapter(item)
         listing_id = adapter.get('listing_id')
         scraped_at = adapter.get('scraped_at')
@@ -218,15 +218,25 @@ class ProcessToSQL:
 
         # === Listing Multi columns ===
         # [listing_media, listing_additional, listing_security, listing_equipment]
-        listings_multi = ListingMultiItem(
-            listing_equipment = adapter.get('equipment'),
-            listing_security = adapter.get('security'),
-            listing_additional = adapter.get('additional'),
-            listing_media = adapter.get('media')
+        db_tables['listing_equipment'] = ListingEquipmentItem(
+            listing_id = listing_id,
+            value = adapter.get('equipment')
+        )
+        db_tables['listing_security'] = ListingSecurityItem(
+            listing_id = listing_id,
+            value = adapter.get('security')
+        )
+        db_tables['listing_additional'] = ListingAdditionalItem(
+            listing_id = listing_id,
+            value = adapter.get('additional')
+        )
+        db_tables['listing_media'] = ListingMediaItem(
+            listing_id = listing_id,
+            value = adapter.get('media')
         )
 
         # === Listing Features ===
-        listings_features = ListingsFeaturesItem(
+        db_tables['listing_features'] = ListingsFeaturesItem(
             listing_id = listing_id,
             floor = adapter.get('floor'),
             num_rooms = adapter.get('num_rooms'),
@@ -235,7 +245,7 @@ class ProcessToSQL:
         )
 
         # === Statistic table ===
-        stats = ListingStatsItem(
+        db_tables['listing_stats'] = ListingStatsItem(
             listing_id = listing_id,
             scraped_at = scraped_at,
             views = adapter.get('likes'),
@@ -243,7 +253,7 @@ class ProcessToSQL:
         )
 
         # === Location table ===
-        location = LocationItem(
+        db_tables['location'] = LocationItem(
             listing_id = listing_id,
             street = adapter.get('street'),
             estate = adapter.get('estate'),
@@ -253,7 +263,7 @@ class ProcessToSQL:
         )
 
         # === Price History table ===
-        price = PriceHistoryItem(
+        db_tables['price_history'] = PriceHistoryItem(
             listing_id = listing_id,
             scraped_at = scraped_at,
             price = adapter.get('price'),
@@ -262,7 +272,7 @@ class ProcessToSQL:
         )
 
         #=== Building Features table ===
-        building_features = BuildingFeaturesItem(
+        db_tables['building_features'] = BuildingFeaturesItem(
             listing_id = listing_id,
             building_material = adapter.get('building_material'),
             building_type = adapter.get('building_type'),
@@ -296,9 +306,17 @@ class SaveToPostgreSQL:
         self.cur = self.conn.cursor() 
 
     def process_item(self, item, spider):
-        adapter = ItemAdapter(item=item)
+        adapter = ItemAdapter(item)
 
-        self.cur.execute
+        list_keys = ['listing_additional', 'listing_media', 'listing_security', 'listing_equipment']
+        for key, value in adapter.items():
+            if key in list_keys:
+                query, params = ListingQuerries.insert_list_values(table_name=key, values=value, column_name=value)
+                self.cur.executemany(query, params)
+            else:
+                self.cur.execute(ListingQuerries.insert(key=key, values=value))
+            self.conn.commit()
+
 
     def close_spider(self, spider):
         self.cur.close()

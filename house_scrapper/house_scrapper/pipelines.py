@@ -248,8 +248,8 @@ class ProcessToSQL:
         db_tables['listing_stats'] = ListingStatsItem(
             listing_id = listing_id,
             scraped_at = scraped_at,
-            views = adapter.get('likes'),
-            likes = adapter.get('views')
+            views = adapter.get('views'),
+            likes = adapter.get('likes')
         )
 
         # === Location table ===
@@ -311,11 +311,14 @@ class SaveToPostgreSQL:
         list_keys = ['listing_additional', 'listing_media', 'listing_security', 'listing_equipment']
         for key, value in adapter.items():
             if key in list_keys:
-                query, params = ListingQuerries.insert_list_values(table_name=key, values=value, column_name=value)
+                query, params = ListingQuerries.insert_list_values(table_name=key, values=value, column_name='value')
                 self.cur.executemany(query, params)
             else:
-                self.cur.execute(ListingQuerries.insert(key=key, values=value))
+                query, params = ListingQuerries.insert(key=key, values=value)
+                self.cur.execute(query, params)
             self.conn.commit()
+
+        return item
 
 
     def close_spider(self, spider):

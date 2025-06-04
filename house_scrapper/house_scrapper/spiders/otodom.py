@@ -206,20 +206,29 @@ class OtodomSpider(scrapy.Spider):
                 time.sleep(SCRAP_SLEEP_TIME)
 
                 if SCRAP_NUMBER:
+                    # try:
+                    #     number_button = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-component="SellerInfo"] button[data-sentry-component="getPhoneButton"]')
+                    #     number_button.click()
+                    #     time.sleep(SCRAP_SLEEP_TIME) # Waiting for laod
+                    #     number = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-element="PhoneNumberWrapper"] span.n-button-text-wrapper').text
+
+                    #     Data['number'] = number
+                    # except NoSuchElementException:
+                    #     Data['number'] = None
+                    #     print(f"No number found on page {response.url}")
+
+                    # except Exception as e:
+                    #     Data['number'] = None
+                    #     print("Number [Error]", e)
                     try:
-                        number_button = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-component="SellerInfo"] button[data-sentry-component="getPhoneButton"]')
-                        number_button.click()
-                        time.sleep(SCRAP_SLEEP_TIME) # Waiting for laod
-                        number = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-element="PhoneNumberWrapper"] span').text
-
+                        number = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-element="PhoneNumberWrapper"] span.n-button-text-wrapper').text
+                        if number.strip() == 'Pokaż numer':
+                            number_button = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-component="SellerInfo"] button[data-sentry-component="getPhoneButton"]')
+                            driver.execute_script("arguments[0].click();", number_button)
+                            number = driver.find_element(By.CSS_SELECTOR, 'div[data-sentry-component="SellerInfo"] span.n-button-text-wrapper').text
                         Data['number'] = number
-                    except NoSuchElementException:
-                        Data['number'] = None
-                        print(f"No number found on page {response.url}")
-
                     except Exception as e:
-                        Data['number'] = None
-                        print("Number [Error]", e)
+                        print("Error getting number", e)
 
                 time.sleep(SCRAP_SLEEP_TIME)
 

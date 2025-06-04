@@ -97,8 +97,8 @@ TELNETCONSOLE_PORT = [6060, 6070]
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    "house_scrapper.pipelines.HouseScrapperPipeline": 300,
-   "house_scrapper.pipelines.ProcessToSQL": 400,
-   "house_scrapper.pipelines.SaveToPostgreSQL": 500
+#    "house_scrapper.pipelines.ProcessToSQL": 400,
+#    "house_scrapper.pipelines.SaveToPostgreSQL": 500
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
